@@ -32,8 +32,8 @@ button{font:inherit}
 .sp{flex:1}
 
 /* ===== الشريط العلوي ===== */
-.top{background:var(--ui);color:#fff;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:0;z-index:30;background:var(--ui);color:#fff;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding-block:max(10px,env(safe-area-inset-top,0px)) 10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .brand{display:flex;flex-direction:column;line-height:1.05}
 .brand .bn{font-family:var(--disp);font-size:30px}
 .brand .bs{font-size:11.5px;color:#c9dccd}
@@ -51,7 +51,7 @@ body:not(.home) .navrow .tabs button.act,body.home #navHome{background:#fff;colo
 .views button{border:1px solid var(--line);background:#fff;color:var(--muted);padding:8px 18px;font-weight:600;font-size:14px;cursor:pointer}
 .views button:first-child{border-radius:0 10px 10px 0}.views button:last-child{border-radius:10px 0 0 10px;border-inline-start:0}
 .views button.act{background:var(--ui);border-color:var(--ui);color:#fff}
-.bar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+.bar{position:sticky;top:var(--toph,64px);z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;
   padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .bar label{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
 .bar input,.bar select{font:inherit;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);min-width:0}
@@ -83,7 +83,7 @@ body:not(.menuopen) .menu{display:none}
 .panel button:disabled{opacity:.45;cursor:default}
 .modal{position:fixed;z-index:40;top:5vh;left:0;right:0;margin:0 auto;width:min(900px,calc(100% - 32px));max-height:90vh;overflow:auto;
   box-shadow:0 0 0 100vmax rgba(16,26,19,.5),0 24px 60px rgba(0,0,0,.35)}
-.pop{position:fixed;z-index:45;top:64px;inset-inline-end:16px;width:min(380px,calc(100% - 32px));box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.pop{position:fixed;z-index:45;top:calc(var(--toph,64px) + 8px);inset-inline-end:16px;width:min(380px,calc(100% - 32px));box-shadow:0 14px 40px rgba(0,0,0,.25)}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;max-height:260px;overflow:auto;border:1px solid var(--line);padding:8px;border-radius:10px}
 .list label{display:flex;gap:6px;align-items:center;cursor:pointer;font-variant-numeric:tabular-nums}
 .list .amt{color:var(--muted);margin-inline-start:auto}
@@ -132,6 +132,8 @@ body.home>:not(.top):not(.dash):not(#fbPanel):not(script):not(#ipPrintBox){displ
 .card .cm{color:var(--muted);font-size:13px}
 .card .cb{display:flex;gap:6px;margin-top:10px}.dash .card .cb button{flex:1;padding:7px 8px;font-size:14px}
 .dash .card .del{flex:0 0 auto;color:var(--danger);border-color:#f2c2bb}.dash .card .del.arm{background:var(--danger);border-color:var(--danger);color:#fff}
+.card .cn .ing{color:#245c3a;background:var(--uibg)}
+.card.agg .cn b{font-size:20px}.card.agg .cm{line-height:1.5}
 .dempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
 .dfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
 .dash .dfoot button{font-size:13px;padding:7px 12px}
@@ -265,7 +267,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   body[data-view="list"] .qnote{display:none!important}
   body[data-view="list"] .bar{position:static}
 }
-.msum{position:sticky;top:0;z-index:4;background:#fff;border-bottom:1px solid #d5dbe2;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.msum{position:sticky;top:var(--toph,0px);z-index:4;background:#fff;border-bottom:1px solid #d5dbe2;padding:10px 16px;display:flex;flex-direction:column;gap:6px}
 .msum .big{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .msum .big b{font-size:24px;color:var(--ui);font-variant-numeric:tabular-nums}
 .msum .big span{color:#5b6b7b;font-size:13px}
@@ -307,7 +309,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 .mfoot .seeb{background:#e3ebf3;color:var(--ui)}
 .mlock{background:#e6f4ea;color:#14532d;padding:10px 14px;border-radius:10px;font-size:14px}
 @media (max-width:820px){
-  .top{gap:10px;padding-block:8px}
+  .top{gap:10px;padding-block:max(8px,env(safe-area-inset-top,0px)) 8px}
   .brand .bn{font-size:24px}.brand .bs{display:none}
   .navrow{order:3;width:100%}.navrow .tabs{flex:3}.navrow button{flex:1;padding:8px 4px;font-size:13px}
   .hint{display:none}
@@ -377,6 +379,8 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
     <input type="file" id="ipFiles" accept="image/*" multiple hidden>
   </div>
   <div class="dstats" id="dStats"></div>
+  <div class="sect" id="dAggHead"><h2>الفواتير المجمعة</h2></div>
+  <div class="dgrid" id="dAgg"></div>
   <div class="sect"><h2>كل الفواتير</h2><input type="search" id="dQ" placeholder="دوّر برقم الفاتورة أو التاريخ"></div>
   <div class="dgrid" id="dGrid"></div>
   <div class="dfoot"><span>نسخة على الجهاز:</span><button id="bkOut">حفظ نسخة احتياطية</button><button id="bkIn">استرجاع نسخة</button></div>
@@ -646,9 +650,15 @@ imgPick.onchange=()=>{const f=imgPick.files[0];if(!f)return;const rd=new FileRea
 const ddmm=d=>{const p=String(d).split('/');return p.length===3?p[1]+'/'+p[2]:d};
 const invTotal=inv=>r2(inv.rows.reduce((t,r)=>t+(num(r.q[0])+num(r.q[1])+num(r.q[2]))*num(r.price),0));
 function sortedKeys(){return Object.keys(archive()).sort((x,y)=>(parseFloat(x)||0)-(parseFloat(y)||0))}
+// الفواتير المجمعة بتتحفظ في agg_archive: {id:{id,keys,made,snap}} — snap نسخة احتياطية لو فاتورة من اللي فيها اتمسحت
+const aggs=()=>LS.get('agg_archive',{});
+function usedKeys(){const u={};Object.values(aggs()).forEach(g=>g.keys.forEach(k=>u[k]=g.id));return u}
 function fillAggList(){
-  const a=archive();
-  aggList.innerHTML=sortedKeys().map(k=>`<label><input type="checkbox" value="${k}"> فاتورة ${k} — ${a[k].date}<span class="amt">${fmt(invTotal(a[k]))}</span><button class="del" data-del="${k}" title="حذف من المحفوظات">✕</button></label>`).join('')||'<span>مفيش فواتير محفوظة لسه.</span>';
+  // الفواتير اللي دخلت في مجمعة قبل كده مبتظهرش هنا عشان المجمعة الجاية تبقى من الباقي بس
+  const a=archive(),used=usedKeys(),ks=sortedKeys().filter(k=>!used[k]),hid=sortedKeys().length-ks.length;
+  aggList.innerHTML=(ks.map(k=>`<label><input type="checkbox" value="${k}"> فاتورة ${k} — ${dayOf(a[k].date)}<span class="amt">${fmt(invTotal(a[k]))}</span><button class="del" data-del="${k}" title="حذف من المحفوظات">✕</button></label>`).join('')
+    ||'<span>مفيش فواتير لسه مدخلتش في فاتورة مجمعة.</span>')
+    +(hid?`<small style="grid-column:1/-1;color:var(--muted)">${hid} فاتورة مش ظاهرة لأنها في فواتير مجمعة قبل كده. لو عايزها ترجع، امسح المجمعة بتاعتها من الرئيسية.</small>`:'');
 }
 aggBtn.onclick=()=>{saveToArchive();fillAggList();aggPanel.hidden=!aggPanel.hidden;aggMsg.textContent=''};
 closeAgg.onclick=()=>aggPanel.hidden=true;
@@ -661,10 +671,9 @@ aggList.onclick=e=>{const k=e.target.dataset&&e.target.dataset.del;if(!k)return;
   if(!delArmed[k]){delArmed[k]=1;e.target.textContent='تأكيد الحذف؟';setTimeout(()=>{if(delArmed[k]){delArmed[k]=0;fillAggList()}},3000);return}
   delArmed[k]=0;const a=archive();delete a[k];LS.set('inv_archive',a);fillAggList();fillArch()};
 
-makeAgg.onclick=()=>{
-  const a=archive();const keys=[...aggList.querySelectorAll('input:checked')].map(c=>c.value);
-  if(keys.length<2){aggMsg.textContent='اختار فاتورتين على الأقل.';return}
-  keys.sort((x,y)=>(parseFloat(x)||0)-(parseFloat(y)||0));
+// بيحسب الفاتورة المجمعة من الفواتير الأصلية (لو فاتورة اتعدلت، المجمعة بتتعدل معاها)
+function combine(keys){
+  const a=archive();keys=[...keys].sort((x,y)=>(parseFloat(x)||0)-(parseFloat(y)||0));
   const invs=keys.map(k=>a[k]);
   const base=S.combined?LS.get('inv_current',blank()):S;
   const rows=base.rows.map((r,i)=>{
@@ -676,13 +685,25 @@ makeAgg.onclick=()=>{
     return{name:r.name,unit:r.unit,price,q:q.map(r2),bm:bm.map(r2)};
   });
   const f=invs[0],l=invs[invs.length-1];
+  return{combined:true,no:f.no+'to'+l.no,date:ddmm(f.date)+'to'+ddmm(l.date),cust:l.cust,rows};
+}
+// المجمعة المحفوظة: لو كل فواتيرها لسه موجودة بتتحسب من جديد، وإلا بنعرض النسخة اللي اتحفظت
+const aggOf=g=>g.keys.every(k=>archive()[k])?combine(g.keys):g.snap;
+function showCombined(C,keys){
   if(!S.combined)saveToArchive();
-  S={combined:true,no:f.no+'to'+l.no,date:ddmm(f.date)+'to'+ddmm(l.date),cust:l.cust,rows};
-  if(editMode)editBtn.click();
+  S=C;if(editMode)editBtn.click();
   aggPanel.hidden=true;comboBar.hidden=false;
   comboTxt.textContent=`فاتورة مجمعة من ${keys.length} فواتير (${keys.join('، ')}). اضغط «حفظ PDF» لتصديرها.`;
   syncHead();build();window.scrollTo(0,0);
+}
+makeAgg.onclick=()=>{
+  const keys=[...aggList.querySelectorAll('input:checked')].map(c=>c.value).sort((x,y)=>(parseFloat(x)||0)-(parseFloat(y)||0));
+  if(keys.length<2){aggMsg.textContent='اختار فاتورتين على الأقل.';return}
+  const C=combine(keys),g=aggs();let id=keys[0]+'-'+keys[keys.length-1];while(g[id])id+='+';
+  g[id]={id,keys,made:Date.now(),snap:C};LS.set('agg_archive',g);
+  showCombined(C,keys);
 };
+function openAgg(id){const g=aggs()[id];if(!g)return;showCombined(aggOf(g),g.keys);hideDash()}
 function exitCombo(rebuild){if(!S.combined)return;S=LS.get('inv_current',blank());comboBar.hidden=true;if(rebuild){syncHead();build()}}
 backBtn.onclick=()=>exitCombo(true);
 
@@ -1082,13 +1103,25 @@ function dashRender(){
   const cur=S.combined?null:String(S.no);
   dBack.hidden=!cur;dBack.innerHTML=`<span>الفاتورة المفتوحة</span><b>${cur}</b><em>كمّل فيها ←</em>`;
   dToday.textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const used=usedKeys();
   const shown=ks.filter(k=>!q||k.includes(q)||normAr(dayOf(a[k].date)).includes(q)||normAr(String(a[k].date)).includes(q));
   dGrid.innerHTML=shown.map(k=>{const x=a[k],n=x.rows.filter(r=>r.q.some(v=>num(v))).length;
-    return `<div class="card ${k===cur?'cur':''}" data-k="${k}"><div class="cn"><b>${k}</b>${dayOf(x.date)}${k===cur?'<small>مفتوحة</small>':''}</div>
+    return `<div class="card ${k===cur?'cur':''}" data-k="${k}"><div class="cn"><b>${k}</b>${dayOf(x.date)}${k===cur?'<small>مفتوحة</small>':used[k]?`<small class="ing">في مجمعة</small>`:''}</div>
       <div class="ct">${fmt(archTotal(x))} <small>جنيه</small></div><div class="cm">${n} صنف</div>
       <div class="cb"><button data-a="open">افتح</button><button class="del" data-a="del">🗑 امسح</button></div></div>`}).join('')
     ||`<div class="dempty">${q?'مفيش فاتورة بالبحث ده.':'لسه مفيش فواتير. دوس «＋ فاتورة جديدة» أو «استيراد طلبية».'}</div>`;
+  const g=aggs(),gids=Object.keys(g).sort((x,y)=>g[y].made-g[x].made);
+  dAggHead.hidden=dAgg.hidden=!gids.length;
+  dAgg.innerHTML=gids.map(id=>{const x=g[id],C=aggOf(x),d=String(C.date).split('to');
+    return `<div class="card agg" data-g="${id}"><div class="cn"><b>${x.keys[0]} – ${x.keys[x.keys.length-1]}</b>${d.join(' ← ')}</div>
+      <div class="ct">${fmt(archTotal(C))} <small>جنيه</small></div><div class="cm">${x.keys.length} فواتير: ${x.keys.join('، ')}</div>
+      <div class="cb"><button data-a="open">افتح</button><button class="del" data-a="del" title="الفواتير نفسها مش بتتمسح">🗑 امسح</button></div></div>`}).join('');
 }
+dAgg.addEventListener('click',e=>{const c=e.target.closest('.card');if(!c)return;const id=c.dataset.g,b=e.target.closest('button');
+  if(b&&b.dataset.a==='del'){ // المسح بيفك التجميع بس؛ الفواتير بترجع لقايمة المجمعة
+    if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='متأكد؟ دوس تاني';setTimeout(()=>{if(b.isConnected){b.classList.remove('arm');b.textContent='🗑 امسح'}},3000);return}
+    const g=aggs();delete g[id];LS.set('agg_archive',g);dashRender();return}
+  openAgg(id)});
 dGrid.addEventListener('click',e=>{const c=e.target.closest('.card');if(!c)return;const k=c.dataset.k,b=e.target.closest('button');
   if(b&&b.dataset.a==='del'){ // مسح على مرتين عشان محدش يمسح بالغلط
     if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='متأكد؟ دوس تاني';setTimeout(()=>{if(b.isConnected){b.classList.remove('arm');b.textContent='🗑 امسح'}},3000);return}
@@ -1164,6 +1197,8 @@ async function ipPrint(){let box=document.getElementById('ipPrintBox');
   const t=document.title;document.title=ipName.value.trim()||'أذونات';document.body.classList.add('ipprint');
   addEventListener('afterprint',()=>{document.body.classList.remove('ipprint');box.innerHTML='';document.title=t},{once:true});
   window.print()}
+function setTopH(){document.documentElement.style.setProperty('--toph',document.querySelector('.top').offsetHeight+'px')}
+addEventListener('resize',setTopH);setTopH();
 navState();showDash();
 </script>
 <script type="module">
@@ -1182,7 +1217,7 @@ const FIREBASE_CONFIG={
   appId:"1:693376514392:web:239878315914b1365d0d2d"
 };
 const SDK='https://www.gstatic.com/firebasejs/10.12.2/';
-const KV=['inv_current','quote','logoR','logoL','imp_alias'];
+const KV=['inv_current','quote','logoR','logoL','imp_alias','agg_archive'];
 const raw={get(k){try{return localStorage.getItem(k)}catch(e){return null}},
   set(k,s){try{s==null?localStorage.removeItem(k):localStorage.setItem(k,s)}catch(e){}}};
 const jget=(k,d)=>{try{return JSON.parse(raw.get(k))??d}catch(e){return d}};
