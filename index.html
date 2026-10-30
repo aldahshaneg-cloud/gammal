@@ -3,55 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f3b57">
+<meta name="theme-color" content="#2d5a3d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>فاتورة الصعيدي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@400;600;700&display=swap">
 <style>
 [hidden]{display:none!important}
+/* التصميم: شريط علوي أخضر (لون الخضار) فيه الأقسام، الرئيسية كروت على أرضية فاتحة،
+   والفاتورة ورقة بيضا على ترابيزة. ألوان الورقة المطبوعة (كريمي/أحمر/دهبي) زي ما هي. */
 :root{
   --cream:#FFF2CC; --red:#C00000; --dark:#7a0000; --orange:#ED7D31; --total:#FFC000;
-  --ink:#000; --ui:#1f3b57; --uibg:#eef2f6;
-  --font:Calibri,"Segoe UI",Tahoma,Arial,sans-serif;
+  --ink:#000;                                   /* حبر الورقة المطبوعة */
+  --ui:#2d5a3d; --ui-2:#234a31;                 /* أخضر ورق الشجر: لون البرنامج */
+  --uibg:#eaf1e8; --paper:#f3f6f1; --desk:#dfe6dc; --line:#d5dfd2;
+  --text:#1c2920; --muted:#5d6c61; --gold:#FFC000; --danger:#b42318;
+  --font:Calibri,"Segoe UI",Tahoma,Arial,sans-serif;              /* خط الورقة */
+  --uif:"Readex Pro","Segoe UI",Tahoma,Arial,sans-serif;          /* خط البرنامج */
+  --disp:"Lalezar","Readex Pro",Tahoma,sans-serif;                /* اسم المحل والعناوين الكبيرة */
+  --shadow:0 1px 2px rgba(28,41,32,.06),0 3px 10px rgba(28,41,32,.06);
 }
 *{box-sizing:border-box}
-body{margin:0;background:#9aa4ae;font-family:var(--font);color:var(--ink)}
+body{margin:0;background:var(--paper);font-family:var(--uif);color:var(--text);font-size:15px}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--ui);outline-offset:2px}
+.sheet{font-family:var(--font);color:var(--ink)}
+.sp{flex:1}
 
-/* ===== شريط التحكم (لا يظهر في PDF) ===== */
-.bar{position:sticky;top:0;z-index:5;background:var(--ui);color:#fff;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.bar label{font-size:13px;display:flex;gap:6px;align-items:center}
-.bar input,.bar select{font:inherit;font-size:14px;padding:5px 8px;border-radius:4px;border:0;min-width:0}
-.bar input#no{width:80px}
+/* ===== الشريط العلوي ===== */
+.top{background:var(--ui);color:#fff;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand .bn{font-family:var(--disp);font-size:30px}
+.brand .bs{font-size:11.5px;color:#c9dccd}
+.navrow{display:flex;gap:4px;background:rgba(0,0,0,.2);padding:4px;border-radius:12px}
+.navrow .tabs{display:flex;gap:4px}
+.navrow button{border:0;background:transparent;color:#d6e6da;padding:8px 14px;border-radius:9px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.navrow button:hover{background:rgba(255,255,255,.1);color:#fff}
+body:not(.home) .navrow .tabs button.act,body.home #navHome{background:#fff;color:var(--ui)}
+#fbBtn{border:0;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.12);color:#fff;display:flex;gap:8px;align-items:center}
+#fbBtn::before{content:"";width:8px;height:8px;border-radius:50%;background:#aab}
+#fbBtn.ok::before{background:#62d394}#fbBtn.wait::before{background:var(--gold)}#fbBtn.off::before{background:#ff8a7a}
+
+/* ===== شريط أدوات الفاتورة / عرض الأسعار ===== */
+.views{display:flex;justify-content:center;background:#fff;padding:12px 16px 0}
+.views button{border:1px solid var(--line);background:#fff;color:var(--muted);padding:8px 18px;font-weight:600;font-size:14px;cursor:pointer}
+.views button:first-child{border-radius:0 10px 10px 0}.views button:last-child{border-radius:10px 0 0 10px;border-inline-start:0}
+.views button.act{background:var(--ui);border-color:var(--ui);color:#fff}
+.bar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar label{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.bar input,.bar select{font:inherit;font-size:15px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);min-width:0}
+.bar input#no{width:84px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 .bar input[type=date]{width:150px;cursor:pointer}
 #dtBox,#qFrom,#qUntil{cursor:pointer}
-.bar button{font:inherit;font-size:14px;font-weight:700;padding:7px 12px;border:0;border-radius:4px;cursor:pointer;background:#fff;color:var(--ui)}
-.bar button.main{background:var(--total);color:#000}
-.bar button.on{background:#ffd6d6;color:var(--red)}
-.bar .sp{flex:1}
-.panel{background:#fff;border-bottom:2px solid var(--ui);padding:12px 16px;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.bar button{font-size:14px;font-weight:600;padding:8px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:#fff;color:var(--ui)}
+.bar button:hover{background:var(--uibg)}
+.bar button.main{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700}
+.bar button.on{background:#fdecea;border-color:#f2c2bb;color:var(--danger)}
+.bar .nav{display:flex;gap:4px;align-items:center}
+.bar .nav button{padding:6px 12px;font-size:18px;line-height:1}
+.bar .nav button:disabled{opacity:.35;cursor:default;background:#fff}
+.more{position:relative}
+.more>button{font-size:18px!important;line-height:1;padding:6px 14px!important}
+.menu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:20;min-width:230px;background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 12px 32px rgba(28,41,32,.18);padding:6px;display:flex;flex-direction:column;gap:2px}
+body:not(.menuopen) .menu{display:none}
+.menu button{border:0!important;text-align:start;width:100%}
+
+/* ===== اللوحات والنوافذ ===== */
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;font-size:14px;box-shadow:var(--shadow)}
 .panel .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.panel input[type=text]{font:inherit;width:70px;padding:4px 6px;border:1px solid #9aa;border-radius:4px}
-.panel button{font:inherit;font-weight:700;padding:6px 12px;border:0;border-radius:4px;cursor:pointer;background:var(--uibg);color:var(--ui)}
-.panel button.main{background:var(--total);color:#000}
-.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;max-height:220px;overflow:auto;border:1px solid #dde;padding:8px;border-radius:4px}
+.panel>.row:first-child>b{font-size:17px;color:var(--ui)}
+.panel input[type=text]{font:inherit;width:76px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.panel button{font-weight:600;padding:8px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:#fff;color:var(--ui)}
+.panel button:hover{background:var(--uibg)}
+.panel button.main{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700}
+.panel button:disabled{opacity:.45;cursor:default}
+.modal{position:fixed;z-index:40;top:5vh;left:0;right:0;margin:0 auto;width:min(900px,calc(100% - 32px));max-height:90vh;overflow:auto;
+  box-shadow:0 0 0 100vmax rgba(16,26,19,.5),0 24px 60px rgba(0,0,0,.35)}
+.pop{position:fixed;z-index:45;top:64px;inset-inline-end:16px;width:min(380px,calc(100% - 32px));box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;max-height:260px;overflow:auto;border:1px solid var(--line);padding:8px;border-radius:10px}
 .list label{display:flex;gap:6px;align-items:center;cursor:pointer;font-variant-numeric:tabular-nums}
-.list .amt{color:#666;margin-inline-start:auto}
-.list .del{background:none;color:#b00;padding:0 4px;font-weight:400}
-.combo{background:#e6f4ea;color:#14532d;font-size:14px;padding:8px 16px;border-bottom:1px solid #9ccfa8;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.combo button{font:inherit;font-weight:700;padding:5px 12px;border:0;border-radius:4px;cursor:pointer;background:#14532d;color:#fff}
-.hint{background:#fff8e1;color:#333;font-size:13px;padding:6px 16px;border-bottom:1px solid #e0c97a}
-#fbBtn.ok{background:#d9f2e1;color:#14532d}#fbBtn.wait{background:#fff3c4;color:#6b4e00}#fbBtn.off{background:#ffd6d6;color:var(--red)}
-#fbPanel .note{font-size:12px;color:#555}
-#impPanel textarea{font:inherit;font-size:15px;width:100%;min-height:150px;padding:8px;border:1px solid #9aa;border-radius:4px}
-#impPanel select{font:inherit;font-size:13px;max-width:100%}#impPrev select{max-width:170px}
+.list .amt{color:var(--muted);margin-inline-start:auto}
+.list .del{background:none;border:0;color:var(--danger);padding:0 4px;font-weight:400}
+.combo{background:#e3f1e6;color:#14532d;font-size:14px;padding:10px 16px;border-bottom:1px solid #b9dcc3;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.combo button{font-weight:600;padding:6px 12px;border:0;border-radius:8px;cursor:pointer;background:#14532d;color:#fff}
+.hint,.qnote{color:var(--muted);font-size:13px;padding:8px 16px;text-align:center;background:var(--desk)}
+#fbPanel .note{font-size:12.5px;color:var(--muted);line-height:1.6}
+#impPanel textarea{font:inherit;font-size:15px;width:100%;min-height:150px;padding:10px;border:1px solid var(--line);border-radius:10px}
+#impPanel select{font:inherit;font-size:13px;max-width:100%;padding:6px;border:1px solid var(--line);border-radius:8px}#impPrev select{max-width:170px;padding:2px}
 #impPrev{max-height:300px;overflow:auto}#impPrev:empty{display:none}
 #impPrev table{border-collapse:collapse;font-size:14px;width:100%}
-#impPrev th,#impPrev td{border:1px solid #ccd;padding:3px 8px;text-align:center}#impPrev th{background:var(--uibg)}
-#impPrev tr.bad td{background:#ffe3e3}
-@media print{#fbPanel,#impPanel{display:none!important}}
+#impPrev th,#impPrev td{border:1px solid var(--line);padding:4px 8px;text-align:center}#impPrev th{background:var(--uibg)}
+#impPrev tr.bad td{background:#fdecea}
+
+/* ===== الرئيسية ===== */
+body.home>:not(.top):not(.dash):not(#fbPanel):not(script):not(#ipPrintBox){display:none!important}
+.dash{padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.din{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.dhead{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.dhead h1{margin:0;font-family:var(--disp);font-weight:400;font-size:42px;line-height:1;color:var(--ui)}
+.dhead p{margin:6px 0 0;color:var(--muted);font-size:14px}
+.dash button{font-weight:600;font-size:15px;padding:10px 16px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:#fff;color:var(--ui)}
+.dash button:hover{border-color:#aebfaa}
+.dash button.main{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;font-size:16px;padding:12px 22px}
+.dash .dback{display:flex;align-items:center;gap:10px;background:var(--ui);border-color:var(--ui);color:#fff;text-align:start;padding:14px 18px}
+.dash .dback:hover{background:var(--ui-2)}
+.dback span{color:#c9dccd;font-weight:400}.dback b{font-size:20px;font-variant-numeric:tabular-nums}.dback em{font-style:normal;margin-inline-start:auto}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.dash .tile{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;text-align:start;padding:14px 16px;border-radius:14px;box-shadow:var(--shadow)}
+.tile .ti{grid-row:span 2;width:46px;height:46px;border-radius:12px;background:var(--uibg);display:grid;place-items:center;font-size:22px}
+.tile b{font-size:16px;color:var(--text)}.tile small{font-size:13px;font-weight:400;color:var(--muted)}
+.dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dstats div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--muted);font-size:13px}
+.dstats b{display:block;font-size:22px;color:var(--text);font-variant-numeric:tabular-nums}
+.sect{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sect h2{margin:0;font-size:18px;font-weight:700}
+#dQ{flex:1;min-width:200px;font:inherit;font-size:15px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+.card:hover{border-color:#aebfaa}.card.cur{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.card .cn{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.card .cn b{font-size:24px;color:var(--ui)}
+.card .cn small{font-size:11.5px;font-weight:700;color:#6b5200;background:#fff1bf;border-radius:999px;padding:2px 8px}
+.card .ct{font-size:19px;font-weight:700;color:var(--text);margin-top:4px}.card .ct small{font-size:13px;color:var(--muted);font-weight:400}
+.card .cm{color:var(--muted);font-size:13px}
+.card .cb{display:flex;gap:6px;margin-top:10px}.dash .card .cb button{flex:1;padding:7px 8px;font-size:14px}
+.dash .card .del{flex:0 0 auto;color:var(--danger);border-color:#f2c2bb}.dash .card .del.arm{background:var(--danger);border-color:var(--danger);color:#fff}
+.dempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+.dfoot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
+.dash .dfoot button{font-size:13px;padding:7px 12px}
+/* صور الأذونات ← PDF */
+.ipdf{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.ipdf .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ipdf .row:first-child b{font-size:17px;color:var(--ui)}
+.ipdf label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:13px}
+#ipName{font:inherit;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;width:200px;color:var(--text)}
+.ipgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ipc{position:relative;border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.ipc img{width:100%;height:180px;object-fit:contain;background:var(--paper);border-radius:8px}
+.ipc b{position:absolute;top:10px;right:10px;background:var(--ui);color:#fff;border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:14px}
+.ipc div{display:flex;gap:4px;width:100%}.dash .ipc button{flex:1;padding:6px 4px;font-size:13px}.dash .ipc button:disabled{opacity:.35}
+.dash .ipc .del{flex:0 0 auto;color:var(--danger);border-color:#f2c2bb}
+#ipPrintBox{display:none}
+@media print{
+  body.ipprint>*:not(#ipPrintBox){display:none!important}body.ipprint #ipPrintBox{display:block}
+  .ipp{height:100vh;display:flex;align-items:center;justify-content:center;break-after:page}.ipp img{max-width:100%;max-height:100%}}
+@media print{.top,.views,.dash,.menu,#fbPanel,#impPanel{display:none!important}}
 
 /* ===== الورق ===== */
-.wrap{overflow-x:auto;padding:20px 0}
+.wrap{overflow-x:auto;padding:24px 0;background:var(--desk)}
 .sheet{width:210mm;min-height:297mm;margin:0 auto 20px;background:#fff;padding:9mm 10mm;box-shadow:0 2px 10px rgba(0,0,0,.35)}
 
 /* الهيدر */
@@ -104,10 +207,7 @@ tr.tot td.tp{background:var(--total);text-align:right}
 .cols col.c-idx{width:7mm}
 
 
-/* ===== التبويبات ===== */
-.tabs{display:flex;gap:4px;background:#14283c;padding:8px 16px 0;flex-wrap:wrap}
-.tabs button{font:inherit;font-size:14px;font-weight:700;padding:8px 14px;border:0;border-radius:6px 6px 0 0;cursor:pointer;background:#2c4a66;color:#cfe0f0}
-.tabs button.act{background:var(--ui);color:#fff}
+/* ===== الأقسام ===== */
 body[data-mode="inv"] .q-only{display:none!important}
 body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!important}
 
@@ -156,13 +256,9 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 .pal{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
 .pal span.sw{width:24px;height:22px;border:1px solid #000;cursor:pointer;display:inline-block;border-radius:3px}
 .pal span.sw.on{outline:3px solid #ffa000;outline-offset:1px}
-.qnote{background:#e8f1fb;color:#1f3b57;font-size:13px;padding:6px 16px;border-bottom:1px solid #b6cde6}
 
 /* ===== الموبايل: الإدخال السريع ===== */
-.views{display:flex;gap:6px;background:var(--ui);padding:8px 16px 0}
-.views button{flex:1;max-width:220px;font:inherit;font-size:14px;font-weight:700;padding:9px 8px;border:0;border-radius:8px 8px 0 0;cursor:pointer;background:#2c4a66;color:#cfe0f0}
-.views button.act{background:#eef1f4;color:var(--ui)}
-.mob{display:none;background:#eef1f4;min-height:70vh;padding:0 0 110px}
+.mob{display:none;background:var(--paper);min-height:70vh;padding:0 0 110px}
 @media screen{
   body[data-view="list"] .mob{display:block}
   body[data-view="list"] .wrap,body[data-view="list"] .hint{display:none!important}
@@ -210,29 +306,30 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 .mfoot .pdfb{background:var(--total);color:#000}
 .mfoot .seeb{background:#e3ebf3;color:var(--ui)}
 .mlock{background:#e6f4ea;color:#14532d;padding:10px 14px;border-radius:10px;font-size:14px}
-.bar .mo{display:none}
 @media (max-width:820px){
-  .bar .mo{display:inline-block}
+  .top{gap:10px;padding-block:8px}
+  .brand .bn{font-size:24px}.brand .bs{display:none}
+  .navrow{order:3;width:100%}.navrow .tabs{flex:3}.navrow button{flex:1;padding:8px 4px;font-size:13px}
   .hint{display:none}
-  body:not(.more) .bar .mx{display:none}
   body[data-view="list"] .bar #pdf{display:none}
-  .bar label input#no{width:64px}.bar input[type=date]{width:140px;font-size:15px}
-  .bar{position:static;padding:8px 10px;gap:6px}
+  .bar{position:static;padding-block:8px;gap:8px}
   .bar label{font-size:12px}
-  .bar button{font-size:13px;padding:7px 9px}
-  .bar .sp{display:none}
-  .tabs{padding:6px 8px 0}
-  .tabs button{flex:1;padding:9px 4px;font-size:13px}
-  .views{padding:6px 8px 0}
+  .bar input#no{width:64px}.bar input[type=date]{width:138px}
+  .bar button{padding:7px 10px;font-size:13px}
+  .views{padding-top:10px}.views button{flex:1;max-width:200px}
   .wrap{padding:10px 8px}
-  .panel{padding:10px}
+  .modal{top:auto;bottom:0;width:100%;max-height:92vh;border-radius:16px 16px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  .dash{padding-block:16px 40px}
+  .dhead h1{font-size:34px}
+  .dhead .main{width:100%}
+  .dstats{grid-template-columns:1fr 1fr}.dstats div:last-child{grid-column:1/-1}
 }
 @media print{.mob,.views,.mfoot{display:none!important}.sheet{zoom:1!important}}
 
 @media print{
   @page{size:A4;margin:0}
   body{background:#fff}
-  .bar,.hint,.panel,.combo,.tabs,.qnote{display:none!important}
+  .bar,.hint,.panel,.combo,.qnote{display:none!important}
   .qt td.lk,.qt th.lk,.qt .x{display:none!important}
   .wrap{padding:0;overflow:visible}
   .sheet{box-shadow:none;margin:0;page-break-after:always;break-after:page}
@@ -244,34 +341,73 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 </style>
 </head>
 <body data-mode="inv">
-<div class="tabs"><button data-m="inv" class="act">الفاتورة</button><button data-m="w">عرض أسعار (صحيح)</button><button data-m="f">عرض أسعار (كسر)</button></div>
+<header class="top">
+  <div class="brand"><span class="bn">الصعيدي</span><span class="bs">فواتير وعروض أسعار الخضار والفاكهة</span></div>
+  <nav class="navrow" aria-label="أقسام البرنامج">
+    <button id="navHome">الرئيسية</button>
+    <div class="tabs"><button data-m="inv" class="act">الفاتورة</button><button data-m="w">أسعار الصحيح</button><button data-m="f">أسعار الكسر</button></div>
+  </nav>
+  <span class="sp"></span>
+  <button id="fbBtn" title="المزامنة بين الأجهزة"><span id="fbSt">قاعدة البيانات</span></button>
+</header>
+<div class="panel pop" id="fbPanel" hidden>
+  <div class="row"><b>المزامنة بين الأجهزة</b><span class="sp"></span><button id="fbClose">إغلاق</button></div>
+  <span id="fbMsg" style="color:var(--danger)"></span>
+  <div class="note">كل الفواتير والأرشيف وعرض الأسعار والشعارات بتتحفظ على الجهاز، وبتترفع على Firebase (مشروع elsayde-41902) وتتزامن مع أي جهاز تاني فاتح البرنامج. لو النت قطع، الشغل بيكمل عادي ويترفع أول ما النت يرجع.</div>
+</div>
+
+<main class="dash" id="dash">
+ <div class="din">
+  <div class="dhead">
+    <div><h1>الفواتير</h1><p id="dToday"></p></div>
+    <span class="sp"></span>
+    <button class="main" id="new">＋ فاتورة جديدة</button>
+  </div>
+  <button class="dback" id="dBack"></button>
+  <div class="tiles">
+    <button class="tile" id="dImgs"><span class="ti">🖼</span><b>صور الأذونات ← PDF</b><small>كل صور الأذونات في ملف واحد</small></button>
+    <button class="tile" id="impBtn"><span class="ti">📥</span><b>استيراد طلبية</b><small>كميات إذن مكتوب تتحط في الفاتورة</small></button>
+    <button class="tile" id="aggBtn"><span class="ti">∑</span><b>فاتورة مجمعة</b><small>فواتير فترة في فاتورة واحدة</small></button>
+  </div>
+  <div class="ipdf" id="ipPanel" hidden>
+    <div class="row"><b>🖼 صور الأذونات ← ملف PDF واحد</b><span style="color:#666;font-size:13px">كل صورة في صفحة، بالترتيب اللي تحت</span><span class="sp"></span><button id="ipClose">إغلاق</button></div>
+    <div class="ipgrid" id="ipGrid"></div>
+    <div class="row"><button id="ipAdd">＋ ضيف صور</button><label>اسم الملف <input id="ipName"></label>
+      <button class="main" id="ipGo" disabled>⬇ اعمل PDF</button><button id="ipClear">امسح الصور</button><span id="ipMsg" style="font-weight:700"></span></div>
+    <input type="file" id="ipFiles" accept="image/*" multiple hidden>
+  </div>
+  <div class="dstats" id="dStats"></div>
+  <div class="sect"><h2>كل الفواتير</h2><input type="search" id="dQ" placeholder="دوّر برقم الفاتورة أو التاريخ"></div>
+  <div class="dgrid" id="dGrid"></div>
+  <div class="dfoot"><span>نسخة على الجهاز:</span><button id="bkOut">حفظ نسخة احتياطية</button><button id="bkIn">استرجاع نسخة</button></div>
+ </div>
+</main>
+
 <div class="views" id="views"><button data-v="list">✍ إدخال سريع</button><button data-v="sheet">📄 شكل الورقة</button></div>
 
 <div class="bar inv-only">
-  <label>رقم الفاتورة <input id="no" inputmode="numeric"></label>
-  <label>التاريخ 📅 <input id="dtPick" type="date"><input id="dt" hidden></label>
-  <button class="main" id="pdf">⬇ حفظ PDF</button>
-  <button id="new">فاتورة جديدة</button>
-  <button id="editBtn" class="mx">تعديل الأسعار والأصناف</button>
-  <button id="aggBtn">∑ فاتورة مجمعة</button>
-  <button id="impBtn">📥 استيراد طلبية</button>
-  <button id="fbBtn" title="قاعدة البيانات (Firebase)">☁ <span id="fbSt">قاعدة البيانات</span></button>
+  <span class="nav"><button id="invPrev" title="الفاتورة اللي قبلها">›</button><label>فاتورة <input id="no" inputmode="numeric"></label><button id="invNext" title="الفاتورة اللي بعدها">‹</button></span>
+  <label>التاريخ <input id="dtPick" type="date"><input id="dt" hidden></label>
+  <button id="editDone" class="on" hidden>✔ خلّصت تعديل الأسعار</button>
   <span class="sp"></span>
-  <button id="moreBtn" class="mo">⋯ المزيد</button>
-  <label class="mx">الفواتير المحفوظة
-    <select id="arch"><option value="">—</option></select>
-  </label>
-  <button id="clear" class="mx">مسح الكميات</button>
-  <button id="bkOut" class="mx">حفظ نسخة احتياطية</button><button id="bkIn" class="mx">استرجاع نسخة</button><input type="file" id="bkFile" accept=".json,application/json" hidden>
+  <button class="main" id="pdf">⬇ حفظ PDF</button>
+  <div class="more"><button id="moreBtn" title="خيارات تانية">⋯</button>
+    <div class="menu">
+      <button id="editBtn">تعديل الأسعار والأصناف</button>
+      <button id="clear">مسح الكميات</button>
+    </div>
+  </div>
+  <label hidden><select id="arch"><option value="">—</option></select></label>
+  <input type="file" id="bkFile" accept=".json,application/json" hidden>
 </div>
-<div class="panel inv-only" id="aggPanel" hidden>
+<div class="panel inv-only modal" id="aggPanel" hidden>
   <div class="row"><b>اختار الفواتير اللي عايز تجمعها</b></div>
   <div class="row">من رقم <input type="text" id="fromNo" inputmode="numeric"> إلى رقم <input type="text" id="toNo" inputmode="numeric">
     <button id="pickRange">حدد الفترة دي</button><button id="pickAll">تحديد الكل</button><button id="pickNone">إلغاء التحديد</button></div>
   <div class="list" id="aggList"></div>
   <div class="row"><button class="main" id="makeAgg">اعمل الفاتورة المجمعة</button><button id="closeAgg">إغلاق</button><span id="aggMsg" style="color:#b00"></span></div>
 </div>
-<div class="panel inv-only" id="impPanel" hidden>
+<div class="panel inv-only modal" id="impPanel" hidden>
   <div class="row"><b>📥 استيراد طلبية</b><span style="color:#555;font-size:13px">صوّر الإذن، واديه للذكاء الاصطناعي مع الأمر ده، والصق اللي يطلعه هنا — أو اكتبه بإيدك: كل صنف في سطر «رمان 43»</span></div>
   <div class="row"><button id="impPrompt">انسخ الأمر للذكاء الاصطناعي</button></div>
   <textarea id="impTxt" placeholder="رقم الإذن: 124&#10;التاريخ: 23/10/2026&#10;الصنف | بطرة | الجنوب | الخلالة&#10;رمان | 43 | |&#10;كاكا | 41 | |&#10;&#10;أو ببساطة:&#10;رمان 43&#10;كاكا 41"></textarea>
@@ -283,11 +419,6 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
     <label id="impDtL" hidden><input type="checkbox" id="impDt" checked> تاريخ الفاتورة = تاريخ الإذن</label>
   </div>
   <div class="row"><button class="main" id="impGo" disabled>حط الكميات في الفاتورة</button><button id="impClose">إغلاق</button><span id="impMsg" style="color:#14532d;font-weight:700"></span></div>
-</div>
-<div class="panel" id="fbPanel" hidden>
-  <div class="row"><b>☁ قاعدة البيانات (Firebase)</b><span id="fbMsg" style="color:#b00"></span></div>
-  <div class="row"><button id="fbClose">إغلاق</button></div>
-  <div class="note">كل الفواتير والأرشيف وعرض الأسعار والشعارات بتتحفظ على الجهاز زي الأول، وكمان بتترفع على Firebase (مشروع elsayde-41902) وتتزامن مع أي جهاز تاني فاتح الصفحة دي. لو النت قطع، الشغل بيكمل عادي ويترفع أول ما النت يرجع.</div>
 </div>
 <div class="combo inv-only" id="comboBar" hidden><span id="comboTxt"></span><button id="backBtn">رجوع للفاتورة العادية</button></div>
 <div class="hint inv-only">اكتب الكميات في خانات الفروع والإجماليات تتحسب لوحدها. اضغط «حفظ PDF» واختار <b>Save as PDF / حفظ بتنسيق PDF</b> من نافذة الطباعة. اضغط على صورة الفاكهة لتغييرها بصورة من جهازك.</div>
@@ -498,7 +629,7 @@ arch.onchange=()=>{const a=archive();if(!arch.value)return;saveToArchive();exitC
 
 pdf.onclick=()=>{saveToArchive();fillArch();const t=document.title;document.title='فاتورة '+S.no;window.print();setTimeout(()=>document.title=t,1000)};
 newBtn=document.getElementById('new');
-newBtn.onclick=()=>{exitCombo(true);saveToArchive();S.no=(parseInt(S.no)||0)+1;S.date=today();S.rows.forEach(r=>r.q=['','','']);syncHead();build();saveToArchive()};
+newBtn.onclick=()=>{exitCombo(true);saveToArchive();S.no=Math.max(parseInt(S.no)||0,...sortedKeys().map(k=>parseInt(k)||0))+1;S.date=today();S.rows.forEach(r=>r.q=['','','']);syncHead();build();saveToArchive()}; // أكبر رقم +1 عشان منكتبش فوق فاتورة موجودة
 clear.onclick=()=>{if(S.combined)return;S.rows.forEach(r=>r.q=['','','']);build()};
 editBtn.onclick=()=>{editMode=!editMode;editBtn.classList.toggle('on',editMode);editBtn.textContent=editMode?'✔ إنهاء التعديل':'تعديل الأسعار والأصناف';build()};
 
@@ -761,7 +892,6 @@ mSearch.addEventListener('input',()=>{mOpen=null;mRender()});
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{mFlt=c.dataset.flt;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===c));mOpen=null;mRender()});
 mPdf.onclick=()=>{(mode==='inv'?pdf:qPdf).click()};
 mSee.onclick=()=>setView('sheet');
-moreBtn.onclick=()=>{document.body.classList.toggle('more');moreBtn.textContent=document.body.classList.contains('more')?'✕ أقل':'⋯ المزيد'};
 
 // ربط التحديث بباقي البرنامج
 const _build=build;build=function(){_build();if(!mBusy)mRender()};
@@ -913,7 +1043,7 @@ impPrompt.onclick=()=>{const done=()=>{impPrompt.textContent='✔ اتنسخ';se
 impGo.onclick=()=>{
   const {ctx,items}=impData,how=impHow.value;
   exitCombo(false);
-  if(how==='new'){saveToArchive();S=JSON.parse(JSON.stringify(S));S.no=(parseInt(S.no)||0)+1;S.date=today();S.rows.forEach(r=>r.q=['','',''])}
+  if(how==='new'){saveToArchive();S=JSON.parse(JSON.stringify(S));S.no=Math.max(parseInt(S.no)||0,...sortedKeys().map(k=>parseInt(k)||0))+1;S.date=today();S.rows.forEach(r=>r.q=['','',''])}
   // رقم الإذن: الفاتورة الحالية بتفضل في الأرشيف، ونكمّل على فاتورة بالرقم ده لو موجودة أو نبدأ واحدة فاضية
   if(impNo.checked&&ctx.no&&String(S.no)!==ctx.no){if(how!=='new')saveToArchive();const a=archive();
     if(a[ctx.no])S=JSON.parse(JSON.stringify(a[ctx.no]));else{S=JSON.parse(JSON.stringify(S));S.no=ctx.no;S.rows.forEach(r=>r.q=['','',''])}}
@@ -926,6 +1056,115 @@ impGo.onclick=()=>{
   syncHead();build();fillArch();if(view==='list')mRender();
   impMsg.textContent=`✔ اتحط ${n} صنف في فاتورة ${S.no}`;
 };
+</script>
+<script>
+// ===== الرئيسية والتنقل بين الفواتير =====
+// رقم الفاتورة في الخانة بيغيّر رقم الفاتورة المفتوحة؛ الفتح بيبقى من الأسهم أو من الرئيسية
+const dayOf=d=>{const iso=invToISO(d);return iso?iso.split('-').reverse().join('/'):String(d)}; // 2026/23/10 ← 23/10/2026
+function archTotal(x){let t=0;x.rows.forEach(r=>{t+=r.bm?r.bm[0]+r.bm[1]+r.bm[2]:(num(r.q[0])+num(r.q[1])+num(r.q[2]))*num(r.price)});return r2(t)}
+function showDash(){saveToArchive();dQ.value='';dashRender();dash.hidden=false;document.body.classList.add('home');document.body.classList.remove('menuopen');window.scrollTo(0,0)}
+// keepMode: لما بنروح لقسم عرض الأسعار من الشريط العلوي منرجعش للفاتورة
+function hideDash(keepMode){dash.hidden=true;document.body.classList.remove('home');if(keepMode!==true&&mode!=='inv')setMode('inv');if(view==='list')mRender();else fitSheets()}
+function openInv(k){const a=archive();if(!a[k])return;saveToArchive();exitCombo(false);
+  S=JSON.parse(JSON.stringify(a[k]));syncHead();build();fillArch();hideDash();if(view==='list'){mOpen=null;mRender()}}
+// الفاتورة المفتوحة لازم تفضل في الأرشيف — لو اتمسحت نفتح اللي قبلها (أو نفضّيها لو هي الوحيدة)
+function deleteInv(k){const a=archive();delete a[k];LS.set('inv_archive',a);
+  if(!S.combined&&String(S.no)===k){const ks=Object.keys(a).sort((x,y)=>(parseFloat(x)||0)-(parseFloat(y)||0));
+    if(ks.length)S=JSON.parse(JSON.stringify(a[ks.filter(x=>(parseFloat(x)||0)<(parseFloat(k)||0)).pop()??ks[0]]));
+    else S.rows.forEach(r=>r.q=['','','']);
+    syncHead();build()}
+  fillArch();dashRender()}
+function dashRender(){
+  const a=archive(),ks=sortedKeys().reverse(),q=normAr(impDig(dQ.value));
+  const ym=new Date().toISOString().slice(0,7);let all=0,mon=0,mn=0;
+  ks.forEach(k=>{const t=archTotal(a[k]);all+=t;if(invToISO(a[k].date).startsWith(ym)){mon+=t;mn++}});
+  dStats.innerHTML=`<div><b>${ks.length}</b>فاتورة محفوظة</div><div><b>${fmt(mon)}</b>جنيه الشهر ده (${mn} فاتورة)</div><div><b>${fmt(all)}</b>جنيه كل الفواتير</div>`;
+  const cur=S.combined?null:String(S.no);
+  dBack.hidden=!cur;dBack.innerHTML=`<span>الفاتورة المفتوحة</span><b>${cur}</b><em>كمّل فيها ←</em>`;
+  dToday.textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const shown=ks.filter(k=>!q||k.includes(q)||normAr(dayOf(a[k].date)).includes(q)||normAr(String(a[k].date)).includes(q));
+  dGrid.innerHTML=shown.map(k=>{const x=a[k],n=x.rows.filter(r=>r.q.some(v=>num(v))).length;
+    return `<div class="card ${k===cur?'cur':''}" data-k="${k}"><div class="cn"><b>${k}</b>${dayOf(x.date)}${k===cur?'<small>مفتوحة</small>':''}</div>
+      <div class="ct">${fmt(archTotal(x))} <small>جنيه</small></div><div class="cm">${n} صنف</div>
+      <div class="cb"><button data-a="open">افتح</button><button class="del" data-a="del">🗑 امسح</button></div></div>`}).join('')
+    ||`<div class="dempty">${q?'مفيش فاتورة بالبحث ده.':'لسه مفيش فواتير. دوس «＋ فاتورة جديدة» أو «استيراد طلبية».'}</div>`;
+}
+dGrid.addEventListener('click',e=>{const c=e.target.closest('.card');if(!c)return;const k=c.dataset.k,b=e.target.closest('button');
+  if(b&&b.dataset.a==='del'){ // مسح على مرتين عشان محدش يمسح بالغلط
+    if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='متأكد؟ دوس تاني';setTimeout(()=>{if(b.isConnected){b.classList.remove('arm');b.textContent='🗑 امسح'}},3000);return}
+    deleteInv(k);return}
+  openInv(k)});
+dQ.oninput=dashRender;
+dBack.onclick=hideDash;navHome.onclick=showDash;
+// الأقسام اللي فوق: لو إحنا في الرئيسية نقفلها ونروح للقسم
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{if(!dash.hidden)hideDash(true)}));
+// قايمة «⋯»: بتتقفل لما تختار حاجة أو تدوس برّاها
+moreBtn.onclick=e=>{e.stopPropagation();document.body.classList.toggle('menuopen')};
+document.addEventListener('click',e=>{if(!e.target.closest('.more')||e.target.closest('.menu button'))document.body.classList.remove('menuopen')});
+// تعديل الأسعار جوه القايمة؛ وهو شغال بيظهر زرار «خلّصت» في الشريط
+editBtn.addEventListener('click',()=>editDone.hidden=!editMode);editDone.onclick=()=>editBtn.click();
+// زراير الرئيسية اللي شغلها في الفاتورة بتقفل الرئيسية الأول
+// (اللوحة بتتقفل قبلها عشان زرارها اللي بيقلبها يفتحها على طول)
+['new','aggBtn','impBtn'].forEach(id=>document.getElementById(id).addEventListener('click',()=>{hideDash();aggPanel.hidden=impPanel.hidden=true},true));
+function navState(){const ks=sortedKeys(),i=ks.indexOf(String(S.no)),n=parseFloat(S.no)||0;
+  invPrev.disabled=S.combined||!ks.some(k=>i>=0?ks.indexOf(k)<i:(parseFloat(k)||0)<n);
+  invNext.disabled=S.combined||!ks.some(k=>i>=0?ks.indexOf(k)>i:(parseFloat(k)||0)>n)}
+function step(d){const ks=sortedKeys(),i=ks.indexOf(String(S.no)),n=parseFloat(S.no)||0;
+  const k=i>=0?ks[i+d]:(d<0?ks.filter(x=>(parseFloat(x)||0)<n).pop():ks.find(x=>(parseFloat(x)||0)>n));if(k!==undefined)openInv(k)}
+invPrev.onclick=()=>step(-1);invNext.onclick=()=>step(1);
+// أي تغيير (رقم جديد، فاتورة جديدة، أرشيف من جهاز تاني) بيحدّث الأسهم والرئيسية
+const _fillArch=fillArch;fillArch=function(){_fillArch();navState();if(!dash.hidden)dashRender()};
+arch.onchange=()=>{if(arch.value)openInv(arch.value);arch.value=''};
+// ===== صور الأذونات ← ملف PDF واحد (الصور زي ما هي، كل صورة في صفحة A4) =====
+const JSPDF='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+let ipImgs=[];
+function ipRender(){
+  ipGrid.innerHTML=ipImgs.map((x,i)=>`<div class="ipc"><img src="${x.url}" alt=""><b>${i+1}</b><div>
+    <button data-m="-1" data-i="${i}" ${i?'':'disabled'}>قبل</button><button data-m="1" data-i="${i}" ${i<ipImgs.length-1?'':'disabled'}>بعد</button>
+    <button class="del" data-x="${i}" title="شيل الصورة">✕</button></div></div>`).join('')
+    ||'<div class="dempty" style="grid-column:1/-1">دوس «＋ ضيف صور» واختار صور الأذونات.</div>';
+  ipGo.disabled=!ipImgs.length;ipGo.textContent=ipImgs.length?`⬇ اعمل PDF (${ipImgs.length} صفحة)`:'⬇ اعمل PDF';
+}
+ipGrid.onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.x!==undefined){const [x]=ipImgs.splice(+b.dataset.x,1);URL.revokeObjectURL(x.url)}
+  else{const i=+b.dataset.i,j=i+ +b.dataset.m;[ipImgs[i],ipImgs[j]]=[ipImgs[j],ipImgs[i]]}
+  ipRender()};
+// ترتيب الصور بوقت التصوير (أقدم صورة الأول)، وتقدر تغيّره بـ «قبل» و«بعد»
+ipFiles.onchange=()=>{[...ipFiles.files].sort((a,b)=>a.lastModified-b.lastModified||a.name.localeCompare(b.name))
+  .forEach(f=>ipImgs.push({f,url:URL.createObjectURL(f)}));ipFiles.value='';ipMsg.textContent='';ipRender()};
+ipAdd.onclick=()=>ipFiles.click();
+ipClear.onclick=()=>{ipImgs.forEach(x=>URL.revokeObjectURL(x.url));ipImgs=[];ipMsg.textContent='';ipRender()};
+ipClose.onclick=()=>ipPanel.hidden=true;
+// اسم الملف بالإنجليزي: بعض المتصفحات بتبوّظ الأسماء العربي في التحميل
+dImgs.onclick=()=>{ipPanel.hidden=false;if(!ipName.value)ipName.value='Azonat '+dayOf(today()).replace(/\//g,'-');ipRender();if(!ipImgs.length)ipFiles.click()};
+function loadJsPDF(){return window.jspdf?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');
+  sc.src=JSPDF;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
+// الصورة بتتصغّر لـ 2200 بكسل عشان الملف ميبقاش تقيل (الكتابة لسه واضحة)
+function ipJpeg(f){return createImageBitmap(f).then(bm=>{const z=Math.min(1,2200/Math.max(bm.width,bm.height));
+  const c=document.createElement('canvas');c.width=Math.round(bm.width*z);c.height=Math.round(bm.height*z);
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);return{d:c.toDataURL('image/jpeg',.85),w:c.width,h:c.height}})}
+ipGo.onclick=async()=>{
+  ipGo.disabled=true;ipMsg.style.color='';ipMsg.textContent='⏳ بيعمل الملف…';
+  let lib=true;try{await loadJsPDF()}catch(e){lib=false}
+  try{
+    if(!lib){ipMsg.textContent='';return ipPrint()} // من غير نت: الطباعة ← «حفظ بتنسيق PDF»
+    const {jsPDF}=window.jspdf;let doc=null;
+    for(const x of ipImgs){const im=await ipJpeg(x.f),o=im.w>im.h?'l':'p';
+      if(!doc)doc=new jsPDF({orientation:o,unit:'mm',format:'a4'});else doc.addPage('a4',o);
+      const W=o==='l'?297:210,H=o==='l'?210:297,m=6,z=Math.min((W-2*m)/im.w,(H-2*m)/im.h),w=im.w*z,h=im.h*z;
+      doc.addImage(im.d,'JPEG',(W-w)/2,(H-h)/2,w,h)}
+    doc.save((ipName.value.trim()||'Azonat')+'.pdf');ipMsg.style.color='#14532d';ipMsg.textContent=`✔ اتعمل الملف (${ipImgs.length} صفحة)`;
+  }catch(e){ipMsg.style.color='#b00';ipMsg.textContent='حصلت مشكلة: '+e.message}
+  finally{ipGo.disabled=!ipImgs.length}
+};
+async function ipPrint(){let box=document.getElementById('ipPrintBox');
+  if(!box){box=document.createElement('div');box.id='ipPrintBox';document.body.appendChild(box)}
+  box.innerHTML=ipImgs.map(x=>`<div class="ipp"><img src="${x.url}" alt=""></div>`).join('');
+  await Promise.all([...box.querySelectorAll('img')].map(i=>i.decode().catch(()=>{})));
+  const t=document.title;document.title=ipName.value.trim()||'أذونات';document.body.classList.add('ipprint');
+  addEventListener('afterprint',()=>{document.body.classList.remove('ipprint');box.innerHTML='';document.title=t},{once:true});
+  window.print()}
+navState();showDash();
 </script>
 <script type="module">
 // ===== قاعدة البيانات (Firebase Realtime Database) =====
