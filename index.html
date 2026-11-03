@@ -154,6 +154,8 @@ body.home>:not(.top):not(.dash):not(#fbPanel):not(script):not(#ipPrintBox){displ
   body.ipprint>*:not(#ipPrintBox){display:none!important}body.ipprint #ipPrintBox{display:block}
   .ipp{height:100vh;display:flex;align-items:center;justify-content:center;break-after:page}.ipp img{max-width:100%;max-height:100%}}
 @media print{.top,.views,.dash,.menu,#fbPanel,#impPanel{display:none!important}}
+/* وقت عمل الـ PDF: الورقة لازم تبقى ظاهرة ومن غير ضل حتى لو إحنا في الإدخال السريع */
+body.pdfshot[data-mode="w"] #qWrap,body.pdfshot[data-mode="f"] #qWrap{display:block!important}body.pdfshot .sheet{box-shadow:none}
 
 /* ===== الورق ===== */
 .wrap{overflow-x:auto;padding:24px 0;background:var(--desk)}
@@ -428,7 +430,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 <div class="hint inv-only">اكتب الكميات في خانات الفروع والإجماليات تتحسب لوحدها. اضغط «حفظ PDF» واختار <b>Save as PDF / حفظ بتنسيق PDF</b> من نافذة الطباعة. اضغط على صورة الفاكهة لتغييرها بصورة من جهازك.</div>
 
 <div class="bar q-only" id="qBar">
-  <button class="main" id="qPdf">⬇ حفظ PDF</button>
+  <button class="main" id="qPdf">⬇ حفظ PDF</button><button id="qPrint">🖨 طباعة</button><span id="qMsg" style="font-size:13px;font-weight:600"></span>
   <label>من 📅 <input id="qFromPick" type="date"></label><label>حتي 📅 <input id="qUntilPick" type="date"></label>
   <button id="qEdit">تعديل الأصناف والألوان</button>
   <button id="qApply" class="f-only">طبّق أسعار الكسر على الفاتورة</button>
@@ -806,9 +808,16 @@ qAddV.onclick=()=>{Q.veg.push(mk(['صنف جديد',0,0,'','',-1]));saveQ();buil
 qTo.oninput=()=>{Q.to=qTo.value;saveQ()};qFrom.oninput=()=>{Q.from=qFrom.value;saveQ()};qUntil.oninput=()=>{Q.until=qUntil.value;saveQ()};
 qApply.onclick=()=>{let n=0;[...Q.fruit,...Q.veg].forEach(it=>{if(it.link>=0){pushPrice(it);n++}});
   if(!S.combined){syncHead();build()}qApply.textContent=`✔ اتطبق على ${n} صنف`;setTimeout(()=>qApply.textContent='طبّق أسعار الكسر على الفاتورة',2500)};
-qPdf.onclick=()=>{if(qEditMode)qEdit.click();const t=document.title;
+qPrint.onclick=()=>{if(qEditMode)qEdit.click();const t=document.title;
   document.title='عرض أسعار '+(mode==='f'?'كسر':'صحيح')+' '+Q.from.replace(/\s|\//g,'-')+' الى '+Q.until.replace(/\s|\//g,'-');
   window.print();setTimeout(()=>document.title=t,1000)};
+// «حفظ PDF» بيعمل ملف PDF وينزّله على طول من غير نافذة الطباعة (بعض الموبايلات والبرامج مبتفتحهاش)
+qPdf.onclick=async()=>{if(qEditMode)qEdit.click();
+  const name=['Ard-Asaar',mode==='f'?'Kasr':'Sahih',Q.from,'to',Q.until].join(' ').replace(/[\/\s]+/g,'-');
+  qPdf.disabled=true;qMsg.style.color='';qMsg.textContent='⏳ بيعمل الملف…';
+  try{await sheetsToPdf([qs],name);qMsg.style.color='#1e7a46';qMsg.textContent='✔ اتحفظ الملف'}
+  catch(e){qMsg.style.color='var(--danger)';qMsg.textContent='ماقدرش يعمل الملف (محتاج نت أول مرة) — جرّب «طباعة»'}
+  qPdf.disabled=false;setTimeout(()=>qMsg.textContent='',6000)};
 // لما ترجع للفاتورة اعرض الأسعار المحدثة
 const _setMode=setMode;setMode=m=>{_setMode(m);if(m==='inv'&&!S.combined){S=LS.get('inv_current',S);syncHead();build()}};
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
@@ -1170,6 +1179,25 @@ ipClear.onclick=()=>{ipImgs.forEach(x=>URL.revokeObjectURL(x.url));ipImgs=[];ipM
 ipClose.onclick=()=>ipPanel.hidden=true;
 // اسم الملف بالإنجليزي: بعض المتصفحات بتبوّظ الأسماء العربي في التحميل
 dImgs.onclick=()=>{ipPanel.hidden=false;if(!ipName.value)ipName.value='Azonat '+dayOf(today()).replace(/\//g,'-');ipRender();if(!ipImgs.length)ipFiles.click()};
+const H2C='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+function loadLib(src,ready){return ready()?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');
+  sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
+// بيصوّر كل ورقة زي ما هي على الشاشة ويحطها في صفحة A4 (الورقة لازم تبان وقت التصوير، حتى في الإدخال السريع)
+async function sheetsToPdf(sheets,name){
+  await loadLib(JSPDF,()=>window.jspdf);await loadLib(H2C,()=>window.html2canvas);
+  const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
+  document.body.classList.add('pdfshot');
+  try{for(const [i,el] of sheets.entries()){const z=el.style.zoom;el.style.zoom='';
+      // خانات الكتابة بتتحول لنص عادي في النسخة اللي بتتصور (html2canvas بيرسم الـ input بخط مايل عن مكانه)
+      const ins=[...el.querySelectorAll('input')].map(i=>{const cs=getComputedStyle(i);return{w:i.offsetWidth,ta:cs.textAlign,dir:cs.direction}});
+      const c=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',logging:false,onclone:(d,cl)=>{
+        cl.querySelectorAll('input').forEach((i,n)=>{const o=ins[n]||{},sp=d.createElement('span');sp.textContent=i.value;
+          sp.style.cssText=`display:inline-block;width:${o.w}px;text-align:${o.ta};direction:${o.dir};unicode-bidi:plaintext;white-space:nowrap;overflow:hidden;vertical-align:middle`;
+          i.replaceWith(sp)})}});el.style.zoom=z;
+      if(i)doc.addPage();doc.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,Math.min(297,210*c.height/c.width))}}
+  finally{document.body.classList.remove('pdfshot');if(typeof fitSheets==='function')fitSheets()}
+  doc.save(name+'.pdf');
+}
 function loadJsPDF(){return window.jspdf?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');
   sc.src=JSPDF;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
 // الصورة بتتصغّر لـ 2200 بكسل عشان الملف ميبقاش تقيل (الكتابة لسه واضحة)
