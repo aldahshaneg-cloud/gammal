@@ -155,7 +155,7 @@ body.home>:not(.top):not(.dash):not(#fbPanel):not(script):not(#ipPrintBox){displ
   .ipp{height:100vh;display:flex;align-items:center;justify-content:center;break-after:page}.ipp img{max-width:100%;max-height:100%}}
 @media print{.top,.views,.dash,.menu,#fbPanel,#impPanel{display:none!important}}
 /* وقت عمل الـ PDF: الورقة لازم تبقى ظاهرة ومن غير ضل حتى لو إحنا في الإدخال السريع */
-body.pdfshot[data-mode="w"] #qWrap,body.pdfshot[data-mode="f"] #qWrap{display:block!important}body.pdfshot .sheet{box-shadow:none}
+body.pdfshot[data-mode="w"] #qWrap,body.pdfshot[data-mode="f"] #qWrap,body.pdfshot[data-mode="inv"] .wrap.inv-only{display:block!important}body.pdfshot .sheet{box-shadow:none}
 
 /* ===== الورق ===== */
 .wrap{overflow-x:auto;padding:24px 0;background:var(--desk)}
@@ -400,6 +400,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   <div class="more"><button id="moreBtn" title="خيارات تانية">⋯</button>
     <div class="menu">
       <button id="editBtn">تعديل الأسعار والأصناف</button>
+      <button id="invPrint">🖨 طباعة</button>
       <button id="clear">مسح الكميات</button>
     </div>
   </div>
@@ -430,7 +431,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
 <div class="hint inv-only">اكتب الكميات في خانات الفروع والإجماليات تتحسب لوحدها. اضغط «حفظ PDF» واختار <b>Save as PDF / حفظ بتنسيق PDF</b> من نافذة الطباعة. اضغط على صورة الفاكهة لتغييرها بصورة من جهازك.</div>
 
 <div class="bar q-only" id="qBar">
-  <button class="main" id="qPdf">⬇ حفظ PDF</button><button id="qPrint">🖨 طباعة</button><span id="qMsg" style="font-size:13px;font-weight:600"></span>
+  <button class="main" id="qPdf">⬇ حفظ PDF</button><button id="qPrint">🖨 طباعة</button>
   <label>من 📅 <input id="qFromPick" type="date"></label><label>حتي 📅 <input id="qUntilPick" type="date"></label>
   <button id="qEdit">تعديل الأصناف والألوان</button>
   <button id="qApply" class="f-only">طبّق أسعار الكسر على الفاتورة</button>
@@ -633,7 +634,18 @@ function fillArch(){
 function saveToArchive(){if(S.combined||!String(S.no).trim())return;const a=archive();a[S.no]=JSON.parse(JSON.stringify(S));LS.set('inv_archive',a);fillArch()}
 arch.onchange=()=>{const a=archive();if(!arch.value)return;saveToArchive();exitCombo(false);S=JSON.parse(JSON.stringify(a[arch.value]));syncHead();build();arch.value=''};
 
-pdf.onclick=()=>{saveToArchive();fillArch();const t=document.title;document.title='فاتورة '+S.no;window.print();setTimeout(()=>document.title=t,1000)};
+invPrint.onclick=()=>{saveToArchive();fillArch();const t=document.title;document.title='فاتورة '+S.no;window.print();setTimeout(()=>document.title=t,1000)};
+// «حفظ PDF» بيعمل الملف وينزّله على طول (نافذة الطباعة مش بتفتح في كل الأجهزة)؛ لو فشل بيقول يجرب «طباعة»
+// (زرار الموبايل اللي تحت بيبيّن نفس الحالة)
+async function savePdf(btn,sheets,name){
+  const bs=[btn,mPdf];if(btn.disabled)return;const ts=bs.map(x=>x.textContent);
+  const say=m=>bs.forEach(x=>x.textContent=m);bs.forEach(x=>x.disabled=true);say('⏳ بيعمل الملف…');
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  try{await sheetsToPdf(sheets,name);say('✔ اتحفظ الملف')}
+  catch(e){say('❌ ماقدرش — جرّب «طباعة»');console.error(e)}
+  setTimeout(()=>bs.forEach((x,i)=>{x.textContent=ts[i];x.disabled=false}),3500)}
+pdf.onclick=()=>{if(editMode)editBtn.click();saveToArchive();fillArch();
+  savePdf(pdf,[...document.querySelectorAll('.wrap.inv-only .sheet')],('Fatora '+String(S.no).replace('to',' - ')).replace(/[\\/:*?"<>|]+/g,'-'))};
 newBtn=document.getElementById('new');
 newBtn.onclick=()=>{exitCombo(true);saveToArchive();S.no=Math.max(parseInt(S.no)||0,...sortedKeys().map(k=>parseInt(k)||0))+1;S.date=today();S.rows.forEach(r=>r.q=['','','']);syncHead();build();saveToArchive()}; // أكبر رقم +1 عشان منكتبش فوق فاتورة موجودة
 clear.onclick=()=>{if(S.combined)return;S.rows.forEach(r=>r.q=['','','']);build()};
@@ -812,12 +824,8 @@ qPrint.onclick=()=>{if(qEditMode)qEdit.click();const t=document.title;
   document.title='عرض أسعار '+(mode==='f'?'كسر':'صحيح')+' '+Q.from.replace(/\s|\//g,'-')+' الى '+Q.until.replace(/\s|\//g,'-');
   window.print();setTimeout(()=>document.title=t,1000)};
 // «حفظ PDF» بيعمل ملف PDF وينزّله على طول من غير نافذة الطباعة (بعض الموبايلات والبرامج مبتفتحهاش)
-qPdf.onclick=async()=>{if(qEditMode)qEdit.click();
-  const name=['Ard-Asaar',mode==='f'?'Kasr':'Sahih',Q.from,'to',Q.until].join(' ').replace(/[\/\s]+/g,'-');
-  qPdf.disabled=true;qMsg.style.color='';qMsg.textContent='⏳ بيعمل الملف…';
-  try{await sheetsToPdf([qs],name);qMsg.style.color='#1e7a46';qMsg.textContent='✔ اتحفظ الملف'}
-  catch(e){qMsg.style.color='var(--danger)';qMsg.textContent='ماقدرش يعمل الملف (محتاج نت أول مرة) — جرّب «طباعة»'}
-  qPdf.disabled=false;setTimeout(()=>qMsg.textContent='',6000)};
+qPdf.onclick=()=>{if(qEditMode)qEdit.click();
+  savePdf(qPdf,[qs],['Ard-Asaar',mode==='f'?'Kasr':'Sahih',Q.from,'to',Q.until].join(' ').replace(/[\/\s]+/g,'-'))};
 // لما ترجع للفاتورة اعرض الأسعار المحدثة
 const _setMode=setMode;setMode=m=>{_setMode(m);if(m==='inv'&&!S.combined){S=LS.get('inv_current',S);syncHead();build()}};
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
@@ -1194,7 +1202,8 @@ async function sheetsToPdf(sheets,name){
         cl.querySelectorAll('input').forEach((i,n)=>{const o=ins[n]||{},sp=d.createElement('span');sp.textContent=i.value;
           sp.style.cssText=`display:inline-block;width:${o.w}px;text-align:${o.ta};direction:${o.dir};unicode-bidi:plaintext;white-space:nowrap;overflow:hidden;vertical-align:middle`;
           i.replaceWith(sp)})}});el.style.zoom=z;
-      if(i)doc.addPage();doc.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,210,Math.min(297,210*c.height/c.width))}}
+      if(i)doc.addPage();let w=210,h=210*c.height/c.width;if(h>297){w=w*297/h;h=297}
+      doc.addImage(c.toDataURL('image/jpeg',.92),'JPEG',(210-w)/2,0,w,h)}}
   finally{document.body.classList.remove('pdfshot');if(typeof fitSheets==='function')fitSheets()}
   doc.save(name+'.pdf');
 }
