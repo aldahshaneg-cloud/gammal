@@ -153,7 +153,10 @@ body.home>:not(.top):not(.dash):not(#fbPanel):not(script):not(#ipPrintBox){displ
 @media print{
   body.ipprint>*:not(#ipPrintBox){display:none!important}body.ipprint #ipPrintBox{display:block}
   .ipp{height:100vh;display:flex;align-items:center;justify-content:center;break-after:page}.ipp img{max-width:100%;max-height:100%}}
-@media print{.top,.views,.dash,.menu,#fbPanel,#impPanel{display:none!important}}
+.bar button.wa{background:#e4f6ea;border-color:#b5e2c4;color:#11643a}
+#waPanel{width:min(440px,calc(100% - 32px))}#waIn{font:inherit;font-size:18px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;flex:1;min-width:0;letter-spacing:.5px}
+.mfoot .wab{flex:0 0 auto!important;background:#e4f6ea;color:#11643a;padding-inline:14px!important}
+@media print{.top,.views,.dash,.menu,#fbPanel,#impPanel,#waPanel{display:none!important}}
 /* وقت عمل الـ PDF: الورقة لازم تبقى ظاهرة ومن غير ضل حتى لو إحنا في الإدخال السريع */
 body.pdfshot[data-mode="w"] #qWrap,body.pdfshot[data-mode="f"] #qWrap,body.pdfshot[data-mode="inv"] .wrap.inv-only{display:block!important}body.pdfshot .sheet{box-shadow:none}
 
@@ -315,7 +318,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   .brand .bn{font-size:24px}.brand .bs{display:none}
   .navrow{order:3;width:100%}.navrow .tabs{flex:3}.navrow button{flex:1;padding:8px 4px;font-size:13px}
   .hint{display:none}
-  body[data-view="list"] .bar #pdf{display:none}
+  body[data-view="list"] .bar #pdf,body[data-view="list"] .bar #waBtn{display:none}
   .bar{position:static;padding-block:8px;gap:8px}
   .bar label{font-size:12px}
   .bar input#no{width:64px}.bar input[type=date]{width:138px}
@@ -397,10 +400,12 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   <button id="editDone" class="on" hidden>✔ خلّصت تعديل الأسعار</button>
   <span class="sp"></span>
   <button class="main" id="pdf">⬇ حفظ PDF</button>
+  <button class="wa" id="waBtn">📤 واتساب</button>
   <div class="more"><button id="moreBtn" title="خيارات تانية">⋯</button>
     <div class="menu">
       <button id="editBtn">تعديل الأسعار والأصناف</button>
       <button id="invPrint">🖨 طباعة</button>
+      <button id="waSet">رقم الواتساب</button>
       <button id="clear">مسح الكميات</button>
     </div>
   </div>
@@ -427,11 +432,17 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   </div>
   <div class="row"><button class="main" id="impGo" disabled>حط الكميات في الفاتورة</button><button id="impClose">إغلاق</button><span id="impMsg" style="color:#14532d;font-weight:700"></span></div>
 </div>
+<div class="panel modal" id="waPanel" hidden>
+  <div class="row"><b>رقم الواتساب</b></div>
+  <div class="row" style="color:var(--muted);font-size:13px">الرقم اللي الفواتير بتتبعتله لما تبعت من الكمبيوتر. اكتبه زي ما بتكلمه، مثلاً 01012345678</div>
+  <div class="row"><input id="waIn" type="tel" inputmode="tel" dir="ltr" autocomplete="off"></div>
+  <div class="row"><button class="main" id="waSave">حفظ</button><button id="waClose">إلغاء</button><span id="waErr" style="color:var(--danger)"></span></div>
+</div>
 <div class="combo inv-only" id="comboBar" hidden><span id="comboTxt"></span><button id="backBtn">رجوع للفاتورة العادية</button></div>
 <div class="hint inv-only">اكتب الكميات في خانات الفروع والإجماليات تتحسب لوحدها. اضغط «حفظ PDF» واختار <b>Save as PDF / حفظ بتنسيق PDF</b> من نافذة الطباعة. اضغط على صورة الفاكهة لتغييرها بصورة من جهازك.</div>
 
 <div class="bar q-only" id="qBar">
-  <button class="main" id="qPdf">⬇ حفظ PDF</button><button id="qPrint">🖨 طباعة</button>
+  <button class="main" id="qPdf">⬇ حفظ PDF</button><button class="wa" id="qWa">📤 واتساب</button><button id="qPrint">🖨 طباعة</button>
   <label>من 📅 <input id="qFromPick" type="date"></label><label>حتي 📅 <input id="qUntilPick" type="date"></label>
   <button id="qEdit">تعديل الأصناف والألوان</button>
   <button id="qApply" class="f-only">طبّق أسعار الكسر على الفاتورة</button>
@@ -490,6 +501,7 @@ body[data-mode="w"] .inv-only,body[data-mode="f"] .inv-only{display:none!importa
   <div class="mlist" id="mList"></div>
   <div class="mfoot">
     <button class="pdfb" id="mPdf">⬇ حفظ PDF</button>
+    <button class="wab" id="mWa">📤 واتساب</button>
     <button class="seeb" id="mSee">📄 شوف الشكل النهائي</button>
   </div>
 </div>
@@ -1191,7 +1203,7 @@ const H2C='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.
 function loadLib(src,ready){return ready()?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');
   sc.src=src;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
 // بيصوّر كل ورقة زي ما هي على الشاشة ويحطها في صفحة A4 (الورقة لازم تبان وقت التصوير، حتى في الإدخال السريع)
-async function sheetsToPdf(sheets,name){
+async function pdfDoc(sheets){
   await loadLib(JSPDF,()=>window.jspdf);await loadLib(H2C,()=>window.html2canvas);
   const {jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
   document.body.classList.add('pdfshot');
@@ -1205,8 +1217,9 @@ async function sheetsToPdf(sheets,name){
       if(i)doc.addPage();let w=210,h=210*c.height/c.width;if(h>297){w=w*297/h;h=297}
       doc.addImage(c.toDataURL('image/jpeg',.92),'JPEG',(210-w)/2,0,w,h)}}
   finally{document.body.classList.remove('pdfshot');if(typeof fitSheets==='function')fitSheets()}
-  doc.save(name+'.pdf');
+  return doc;
 }
+async function sheetsToPdf(sheets,name){(await pdfDoc(sheets)).save(name+'.pdf')}
 function loadJsPDF(){return window.jspdf?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');
   sc.src=JSPDF;sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
 // الصورة بتتصغّر لـ 2200 بكسل عشان الملف ميبقاش تقيل (الكتابة لسه واضحة)
@@ -1236,6 +1249,49 @@ async function ipPrint(){let box=document.getElementById('ipPrintBox');
   window.print()}
 function setTopH(){document.documentElement.style.setProperty('--toph',document.querySelector('.top').offsetHeight+'px')}
 addEventListener('resize',setTopH);setTopH();
+// ===== إرسال الـ PDF على واتساب =====
+// صفحة الويب متقدرش تبعت ملف لرقم معيّن لوحدها. على الموبايل بنفتح «مشاركة» والملف جاهز فيها (تختار واتساب وبعدين الشخص)،
+// وعلى الكمبيوتر بننزّل الملف ونفتح محادثة الرقم المحفوظ عشان تسحب الملف فيها.
+const waNum=()=>String(LS.get('wa_number','')||'');
+function waAsk(then){waErr.textContent='';waIn.value=waNum()?'0'+waNum().replace(/^20/,''):'';waPanel.hidden=false;waIn.focus();
+  waSave.onclick=()=>{let n=impDig(waIn.value).replace(/\D/g,'');
+    if(n.startsWith('00'))n=n.slice(2);else if(n.startsWith('0'))n='20'+n.slice(1); // رقم مصري: 010… ← 2010…
+    if(n.length<11){waErr.textContent='الرقم ناقص — اكتبه كامل';return}
+    LS.set('wa_number',n);waPanel.hidden=true;if(then)then()}}
+waClose.onclick=()=>waPanel.hidden=true;waSet.onclick=()=>waAsk();
+waIn.addEventListener('keydown',e=>{if(e.key==='Enter')waSave.click()});
+let waReady=null; // لو المتصفح طلب ضغطة تانية بعد ما الملف اتجهز
+function waSay(bs,m,ms){const ts=bs.map(b=>b.dataset.t||(b.dataset.t=b.textContent));bs.forEach(b=>b.textContent=m);
+  if(ms)setTimeout(()=>bs.forEach((b,i)=>{if(b.textContent===m)b.textContent=ts[i]}),ms)}
+async function sendWa(bs,sheets,name,text){
+  if(waReady&&waReady.bs[0]===bs[0]){const r=waReady;waReady=null;bs.forEach(b=>b.textContent=b.dataset.t);return shareOrOpen(r)}
+  if(bs.some(b=>b.disabled))return;
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+  bs.forEach(b=>b.disabled=true);waSay(bs,'⏳ بيجهّز الملف…');
+  let r;try{const doc=await pdfDoc(sheets);r={bs,text,file:new File([doc.output('blob')],name+'.pdf',{type:'application/pdf'})}}
+  catch(e){console.error(e);bs.forEach(b=>b.disabled=false);return waSay(bs,'❌ ماقدرش يعمل الملف (محتاج نت)',4000)}
+  bs.forEach(b=>{b.disabled=false;b.textContent=b.dataset.t});shareOrOpen(r);
+}
+async function shareOrOpen(r){
+  if(navigator.canShare&&navigator.canShare({files:[r.file]})){
+    try{await navigator.share({files:[r.file],text:r.text});return}
+    catch(e){if(e.name==='AbortError')return;
+      if(e.name==='NotAllowedError'){waReady=r;return waSay(r.bs,'📤 جاهز — دوس تاني للإرسال')}}
+  }
+  if(!waNum())return waAsk(()=>shareOrOpen(r));
+  const a=document.createElement('a');a.href=URL.createObjectURL(r.file);a.download=r.file.name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000);
+  window.open('https://wa.me/'+waNum()+'?text='+encodeURIComponent(r.text),'_blank');
+  waSay(r.bs,'✔ الملف نزل — اسحبه في المحادثة',7000);
+}
+const invName=()=>('Fatora '+String(S.no).replace('to',' - ')).replace(/[\\/:*?"<>|]+/g,'-');
+const qName=()=>['Ard-Asaar',mode==='f'?'Kasr':'Sahih',Q.from,'to',Q.until].join(' ').replace(/[\/\s]+/g,'-');
+function invWa(){if(editMode)editBtn.click();saveToArchive();
+  sendWa([waBtn,mWa],[...document.querySelectorAll('.wrap.inv-only .sheet')],invName(),
+    `فاتورة ${String(S.no).replace('to',' - ')} — ${S.combined?String(S.date).replace('to',' - '):dayOf(S.date)}\nالإجمالي: ${fmt(archTotal(S))} جنيه\nشركة جمال محمد أحمد الصعيدي`)}
+function qWaSend(){if(qEditMode)qEdit.click();
+  sendWa([qWa,mWa],[qs],qName(),`عرض أسعار ${mode==='f'?'الكسر':'الصحيح'} من ${Q.from} حتي ${Q.until}\nشركة جمال محمد أحمد الصعيدي`)}
+waBtn.onclick=invWa;qWa.onclick=qWaSend;mWa.onclick=()=>mode==='inv'?invWa():qWaSend();
 navState();showDash();
 </script>
 <script type="module">
@@ -1254,7 +1310,7 @@ const FIREBASE_CONFIG={
   appId:"1:693376514392:web:239878315914b1365d0d2d"
 };
 const SDK='https://www.gstatic.com/firebasejs/10.12.2/';
-const KV=['inv_current','quote','logoR','logoL','imp_alias','agg_archive'];
+const KV=['inv_current','quote','logoR','logoL','imp_alias','agg_archive','wa_number'];
 const raw={get(k){try{return localStorage.getItem(k)}catch(e){return null}},
   set(k,s){try{s==null?localStorage.removeItem(k):localStorage.setItem(k,s)}catch(e){}}};
 const jget=(k,d)=>{try{return JSON.parse(raw.get(k))??d}catch(e){return d}};
